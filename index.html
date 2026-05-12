@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>ポケ●ン九九</title>
 <meta name="description" content="かけざんをれんしゅうして ポケ●ンをゲットしよう！ レベルアップするたびに あたらしい ポケ●ンが やってくる 九九れんしゅうアプリ。">
 <meta property="og:type"        content="website">
@@ -68,11 +68,11 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 .nb.ok { background: var(--correct); color: #fff; font-size: 20px; }
 
 /* ─── Footer ─── */
-.footer { padding: 6px 14px 8px; display: flex; align-items: center; justify-content: center; gap: 10px; flex-shrink: 0; position: relative; z-index: 260; }
+.footer { padding: 6px 14px max(8px, env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: center; gap: 10px; flex-shrink: 0; position: relative; z-index: 260; }
 .dex-btn { padding: 6px 22px; border: 2px solid var(--blue); border-radius: 99px; background: #fff; color: var(--blue); font-size: 13px; cursor: pointer; font-weight: 600; }
 
 /* ─── Result screen ─── */
-.result { flex: 1; overflow-y: auto; padding: 10px 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.result { flex: 1; overflow-y: auto; padding: 10px 14px max(40px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; }
 .res-title { text-align: center; font-size: 24px; font-weight: 900; color: var(--blue); }
 .res-score { text-align: center; font-size: 56px; font-weight: 900; color: var(--primary); line-height: 1; }
 .res-msg { text-align: center; font-size: 15px; color: #64748B; }
@@ -1638,7 +1638,7 @@ function spawnXpFloat(text, color, fontSize) {
   app.appendChild(el);
   el.addEventListener('animationend', () => el.remove());
 }
-const APP_VERSION = '1.0.35';
+const APP_VERSION = '1.0.37';
 
 // ── XP constants ──
 const XP_CORRECT     = 5;
