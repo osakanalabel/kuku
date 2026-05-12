@@ -261,6 +261,9 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 .hall-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,.08); border-radius: 12px; padding: 10px 14px; }
 .hall-row-label { font-size: 13px; color: rgba(255,255,255,.7); font-weight: 600; }
 .hall-row-val   { font-size: 15px; color: #FDE68A; font-weight: 900; }
+.hall-secret { margin-bottom: 18px; background: rgba(0,0,0,.35); border: 1px solid rgba(253,230,138,.25); border-radius: 14px; padding: 14px 16px; text-align: center; }
+.hall-secret-msg { font-size: 12px; color: rgba(255,255,255,.65); line-height: 1.8; margin-bottom: 8px; }
+.hall-secret-word { font-size: 20px; font-weight: 900; color: #FDE68A; letter-spacing: 4px; text-shadow: 0 0 12px rgba(253,230,138,.7); }
 .hall-btn { width: 100%; padding: 14px; background: linear-gradient(135deg,#7C3AED,#F59E0B); border: none; border-radius: 99px; font-size: 17px; font-weight: 900; color: #fff; cursor: pointer; font-family: inherit; letter-spacing: 1px; }
 .ts-star.gold { color: #FDE68A; opacity: .9; }
 .comp-badge { background: linear-gradient(135deg,#7C3AED,#F59E0B); border-radius: 99px; padding: 3px 10px; font-size: 11px; font-weight: 900; color: #fff; animation: comp-shine 2.5s ease-in-out infinite; }
@@ -645,6 +648,10 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
           <span class="hall-row-label">といたもんだい</span>
           <span class="hall-row-val">{{ completionStats.questions }}問</span>
         </div>
+      </div>
+      <div class="hall-secret">
+        <div class="hall-secret-msg">ぜんぶのポケモンをゲットしたひとは<br>さくしゃにあいことばをつたえてください</div>
+        <div class="hall-secret-word">『{{ secretWord }}』</div>
       </div>
       <button class="hall-btn" @click="dismissHallOfFame">やった！ ▶</button>
     </div>
@@ -1899,6 +1906,13 @@ createApp({
       return Math.round(r.filter(Boolean).length / r.length * 100);
     });
 
+    const secretWord = computed(() => {
+      try {
+        const bytes = Uint8Array.from(atob('44GC44GC44GN44GC'), c => c.charCodeAt(0));
+        return new TextDecoder().decode(bytes);
+      } catch { return ''; }
+    });
+
     const completionStats = computed(() => {
       const at = profile.completedAt;
       const since = profile.firstLoginDate;
@@ -2251,6 +2265,7 @@ createApp({
       profile.completed   = true;
       profile.completedAt = new Date().toISOString();
       saveProfile();
+      screen.value    = 'result'; // practice画面のundefアクセスを防ぐ
       hallFlash.value = true;
       navigator.vibrate && navigator.vibrate([200, 80, 200, 80, 500]);
       spawnConfetti();
@@ -2260,6 +2275,9 @@ createApp({
     }
 
     function dismissHallOfFame() {
+      const word = secretWord.value;
+      const ok = window.confirm(`⚠️ このあいことばは にどと ひょうじされません！\n\nいまスグおぼえてください：\n\n　　『${word}』\n\nおぼえましたか？ おぼえたらOKをおしてください。`);
+      if (!ok) return;
       hallShow.value = false;
       screen.value   = 'result';
     }
@@ -2447,7 +2465,7 @@ createApp({
       confirmXpCalc, revealLevelup, nextLevelupPokemon,
       revealStarter, dismissStarter, resetData, cancelReset, confirmReset,
       showResetModal, resetCode, resetInput, zukanUrl, fmtDatetime, pokeType, reloadPage,
-      hallFlash, hallShow, completionStats, dismissHallOfFame
+      hallFlash, hallShow, completionStats, dismissHallOfFame, secretWord
     };
   }
 }).mount('#app');
