@@ -1621,24 +1621,32 @@ function playXpSound() {
   XP_SOUND.currentTime = 0;
   XP_SOUND.play().catch(() => {});
 }
-function spawnXpFloat(text, color, fontSize) {
-  const app    = document.getElementById('app');
-  const anchor = app ? app.querySelector('.ans-box') : null;
-  if (!app || !anchor) return;
-  const rect  = anchor.getBoundingClientRect();
-  const pRect = app.getBoundingClientRect();
+function spawnXpFloat(text, color, fontSize, anchor) {
+  const app = document.getElementById('app');
+  if (!app) return;
   const el = document.createElement('div');
   el.className = 'xp-float';
   el.textContent = text;
   el.style.color = color || '#F59E0B';
-  el.style.fontSize = fontSize || '30px';
-  const jitterX = (Math.random() - 0.5) * 30;
-  el.style.left = (rect.left - pRect.left + rect.width / 2 - 20 + jitterX) + 'px';
-  el.style.top  = (rect.top  - pRect.top  - 10) + 'px';
+  el.style.fontSize = fontSize || '28px';
+  let x, y;
+  if (anchor !== null) {
+    const a = anchor || app.querySelector('.ans-box');
+    if (!a) return;
+    const rect  = a.getBoundingClientRect();
+    const pRect = app.getBoundingClientRect();
+    x = rect.left - pRect.left + rect.width / 2 - 20 + (Math.random() - 0.5) * 30;
+    y = rect.top  - pRect.top  - 10;
+  } else {
+    x = app.clientWidth / 2 - 40 + (Math.random() - 0.5) * 60;
+    y = app.clientHeight * 0.58;
+  }
+  el.style.left = x + 'px';
+  el.style.top  = y + 'px';
   app.appendChild(el);
   el.addEventListener('animationend', () => el.remove());
 }
-const APP_VERSION = '1.0.39';
+const APP_VERSION = '1.0.40';
 
 // ── XP constants ──
 const XP_CORRECT     = 5;
@@ -2027,6 +2035,15 @@ createApp({
       showXpCalc.value = true;
       PRESEN_SOUND.currentTime = 0;
       PRESEN_SOUND.play().catch(() => {});
+      const bd = xpBreakdown.value;
+      const floats = [];
+      if (bd.correct > 0) floats.push([`+${bd.correct}`,              '#F59E0B', '30px']);
+      if (bd.perfect > 0) floats.push([`+${bd.perfect} パーフェクト！`, '#10B981', '26px']);
+      if (bd.combo   > 0) floats.push([`+${bd.combo} コンボ！`,        '#EF4444', '24px']);
+      if (bd.time    > 0) floats.push([`+${bd.time} スピード⚡`,       '#06B6D4', '24px']);
+      floats.forEach(([text, color, size], i) => {
+        setTimeout(() => spawnXpFloat(text, color, size, null), i * 350);
+      });
     }
 
     function confirmXpCalc() {
@@ -2215,6 +2232,7 @@ createApp({
           const {gained} = doAddXP(loginBonusXP.value);
           loginPokemons.value  = gained;
           showLoginBonus.value = true;
+          spawnXpFloat(`+${loginBonusXP.value}`, '#F59E0B', '32px', null);
         }
         await saveProfile();
       } else if (profile.todayDate !== today) {
