@@ -135,7 +135,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 .lb-xp { font-size: 50px; font-weight: 900; color: var(--gold); }
 .lb-poke { font-size: 14px; color: var(--blue); font-weight: 700; margin-top: 6px; }
 /* ─── Title screen ─── */
-.title-screen { position:fixed; inset:0; z-index:400; background:linear-gradient(160deg,#1a237e 0%,#4a148c 55%,#880e4f 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px; opacity:1; transition:opacity .7s ease; pointer-events:all; }
+.title-screen { position:fixed; inset:0; z-index:600; background:linear-gradient(160deg,#1a237e 0%,#4a148c 55%,#880e4f 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px; opacity:1; transition:opacity .7s ease; pointer-events:all; }
 .title-screen.fading { opacity:0; pointer-events:none; }
 .ts-bolt { font-size:60px; animation:ts-pulse 1.1s ease-in-out infinite; }
 @keyframes ts-pulse { 0%,100%{transform:scale(1) rotate(-5deg)} 50%{transform:scale(1.2) rotate(5deg)} }
@@ -716,7 +716,7 @@ const POKEMON = [
 [1021,'タケルライコ'],[1022,'テツノイワオ'],[1023,'テツノカシラ'],[1024,'テラパゴス'],[1025,'モモワロウ']
 ];
 
-const APP_VERSION = '1.0.17';
+const APP_VERSION = '1.0.21';
 
 // ── XP constants ──
 const XP_CORRECT     = 5;
@@ -1155,6 +1155,13 @@ createApp({
     onMounted(async () => {
       window.addEventListener('popstate', () => {
         if (screen.value === 'pokedex' || screen.value === 'guide') screen.value = 'practice';
+      });
+
+      // BFCacheに入る前にモーダル類をリセット（Safari対策）
+      window.addEventListener('pagehide', () => {
+        showResetModal.value = false;
+        showLoginBonus.value = false;
+        showXpCalc.value     = false;
       });
 
       // Version check during title screen
