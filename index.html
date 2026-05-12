@@ -173,7 +173,10 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 @keyframes ts-pulse { 0%,100%{transform:scale(1) rotate(-5deg)} 50%{transform:scale(1.2) rotate(5deg)} }
 .ts-main { font-size:54px; font-weight:900; color:#FFE500; text-shadow:0 4px 0 #7B3000, 0 8px 36px rgba(255,229,0,.55); letter-spacing:4px; margin:10px 0 8px; line-height:1.1; }
 .ts-sub { font-size:15px; color:#CE93D8; letter-spacing:3px; }
-.update-banner { background:#DC2626; color:#fff; font-size:12px; font-weight:700; text-align:center; padding:6px 12px; flex-shrink:0; }
+.update-banner { background:#DC2626; color:#fff; font-size:13px; font-weight:700; text-align:center; padding:8px 12px; flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:12px; }
+.reload-btn { background:#fff; color:#DC2626; border:none; border-radius:99px; padding:4px 14px; font-size:13px; font-weight:900; cursor:pointer; }
+.upd-label { font-size:17px; font-weight:900; color:#DC2626; text-align:center; line-height:1.6; }
+.upd-btn { font-size:20px; font-weight:900; color:#fff; background:#DC2626; border:none; border-radius:99px; padding:14px 40px; cursor:pointer; box-shadow:0 4px 16px rgba(220,38,38,.4); letter-spacing:1px; }
 .ts-stars { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
 .ts-star { position:absolute; color:rgba(255,255,255,.4); font-size:11px; animation:ts-twinkle 2.5s ease-in-out infinite; }
 @keyframes ts-twinkle { 0%,100%{opacity:.1;transform:scale(.7)} 50%{opacity:.9;transform:scale(1.3)} }
@@ -310,8 +313,9 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
   </div>
 
   <!-- Update banner -->
-  <div class="update-banner" v-if="updateAvailable && !showTitleScreen">
-    ⬆ あたらしいバージョンがあります — リロードしてください
+  <div class="update-banner" v-if="updateAvailable && !showTitleScreen && !sessionReady">
+    <span>⬆ あたらしいバージョンになりました！</span>
+    <button class="reload-btn" @click="reloadPage">あたらしくする</button>
   </div>
 
   <!-- Header (practice / result) -->
@@ -331,8 +335,14 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
   <div class="practice" v-if="screen==='practice'">
   <div class="start-ov" v-if="sessionReady">
     <div class="start-card">
-      <div class="start-label">10もん スタート！</div>
-      <button class="start-btn" @click="beginSession">▶ スタート</button>
+      <template v-if="updateAvailable">
+        <div class="upd-label">⬆ あたらしいバージョンに<br>なりました！</div>
+        <button class="upd-btn" @click="reloadPage">あたらしくする</button>
+      </template>
+      <template v-else>
+        <div class="start-label">10もん スタート！</div>
+        <button class="start-btn" @click="beginSession">▶ スタート</button>
+      </template>
     </div>
   </div>
     <div class="info-row">
@@ -368,10 +378,10 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
     </div>
 
     <div class="footer">
-      <button class="dex-btn" @click="openPokedex">
+      <button class="dex-btn" @click="openPokedex" :disabled="updateAvailable">
         ボックスをみる（{{ collection.length }}/1025）
       </button>
-      <button class="guide-btn" @click="openGuide">？</button>
+      <button class="guide-btn" @click="openGuide" :disabled="updateAvailable">？</button>
     </div>
   </div>
 
@@ -431,7 +441,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       <div style="font-size:13px;color:#64748B;margin-top:4px">これ いじょう ポケ●ンはいません</div>
     </div>
 
-    <button class="cont-btn" @click="startSession">つぎへ ▶</button>
+    <button class="cont-btn" @click="startSession" :disabled="updateAvailable">つぎへ ▶</button>
 
     <div class="res-card">
       <div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:8px">もんだいの ふりかえり</div>
@@ -443,7 +453,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       </div>
     </div>
 
-    <button class="cont-btn" @click="startSession">つぎへ ▶</button>
+    <button class="cont-btn" @click="startSession" :disabled="updateAvailable">つぎへ ▶</button>
   </div>
 
   <!-- ══ GUIDE SCREEN ══ -->
@@ -1649,7 +1659,7 @@ function spawnXpFloat(text, color, fontSize, anchor) {
   app.appendChild(el);
   el.addEventListener('animationend', () => el.remove());
 }
-const APP_VERSION = '1.0.41';
+let loadedVersion = '';
 
 // ── XP constants ──
 const XP_CORRECT     = 5;
@@ -1789,6 +1799,7 @@ createApp({
     // Title screen state
     const showTitleScreen  = ref(true);
     const updateAvailable  = ref(false);
+    const appVersion       = ref('');
     const titleFading     = ref(false);
     const titleStars      = Array.from({length:20}, (_,i) => ({
       id: i, x: Math.random()*100, y: Math.random()*100, d: (Math.random()*2.5).toFixed(1)
@@ -2086,6 +2097,13 @@ createApp({
       sessionReady.value    = true;  // スタートボタン待ち
       clearSession();
       screen.value          = 'practice';
+      // Version check: compare server version.txt to the version loaded at startup
+      if (loadedVersion) {
+        fetch('version.txt', {cache: 'no-store'})
+          .then(r => r.text())
+          .then(v => { if (v.trim() !== loadedVersion) updateAvailable.value = true; })
+          .catch(e => { console.warn('[version] バージョンチェックに失敗しました', e); });
+      }
     }
 
     function beginSession() {
@@ -2157,6 +2175,7 @@ createApp({
       await dbClear('session');
       window.location.reload();
     }
+    function reloadPage() { window.location.reload(); }
 
     // ── Mount ──
     onMounted(async () => {
@@ -2171,14 +2190,11 @@ createApp({
         showXpCalc.value     = false;
       });
 
-      // Version check during title screen
-      fetch(location.href, {cache: 'no-store'})
+      // Fetch version.txt to record the version loaded at startup
+      fetch('version.txt', {cache: 'no-store'})
         .then(r => r.text())
-        .then(html => {
-          const m = html.match(/APP_VERSION\s*=\s*'([^']+)'/);
-          if (m && m[1] !== APP_VERSION) updateAvailable.value = true;
-        })
-        .catch(() => {});
+        .then(v => { loadedVersion = v.trim(); appVersion.value = v.trim(); })
+        .catch(e => { console.warn('[version] version.txt の読み込みに失敗しました（file://環境などでは正常）', e); });
 
       // Title screen: show 2s then fade out over 0.7s
       setTimeout(() => { titleFading.value = true; }, 2000);
@@ -2277,12 +2293,12 @@ createApp({
       levelupQueue, levelupPhase, levelupCurrent,
       starterPhase, starterPokemon, starPositions,
       currentProblem, xpPercent, progressDots, previewXp,
-      correctCount, resultMsg, sortedCollection, dexHeaderText, appVersion: APP_VERSION,
+      correctCount, resultMsg, sortedCollection, dexHeaderText, appVersion,
       sortKey, sortAsc, filterType, showTypeDropdown, setSortKey, selectType, TYPES,
       tap, del, submit, startSession, beginSession, sessionReady, openPokedex, openGuide, dismissLoginBonus,
       confirmXpCalc, revealLevelup, nextLevelupPokemon,
       revealStarter, dismissStarter, resetData, cancelReset, confirmReset,
-      showResetModal, resetCode, resetInput, zukanUrl, fmtDatetime, pokeType
+      showResetModal, resetCode, resetInput, zukanUrl, fmtDatetime, pokeType, reloadPage
     };
   }
 }).mount('#app');
