@@ -31,14 +31,19 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 #app { height: 100vh; height: 100dvh; display: flex; flex-direction: column; max-width: 430px; margin: 0 auto; user-select: none; -webkit-user-select: none; position: relative; }
 
 /* ─── Header ─── */
-.hdr { background: var(--blue); color: #fff; padding: 4px 14px 6px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; position: relative; z-index: 260; }
+.hdr { background: var(--blue); color: #fff; padding: 4px 14px 6px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; position: relative; z-index: 260; transition: background .6s; }
+.hdr.completed { background: linear-gradient(135deg, #1E1B4B 0%, #3730A3 50%, #4C1D95 100%); }
 .hdr-title { text-align: center; font-size: 20px; font-weight: 900; letter-spacing: 3px; color: #FFE500; text-shadow: 0 2px 0 #B86000, 0 4px 8px rgba(0,0,0,.35); }
+.hdr.completed .hdr-title { color: #FDE68A; text-shadow: 0 0 16px rgba(253,230,138,.8), 0 2px 0 #1E1B4B; }
 .hdr-row { display: flex; align-items: center; gap: 10px; }
 .lv-badge { font-size: 13px; font-weight: 900; background: var(--gold); color: #333; padding: 2px 10px; border-radius: 99px; white-space: nowrap; }
+.hdr.completed .lv-badge { background: #FDE68A; color: #3730A3; }
 .xp-col { flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .xp-wrap { background: rgba(255,255,255,.25); border-radius: 4px; height: 10px; overflow: hidden; }
 .xp-fill { height: 100%; background: var(--gold); transition: width .4s ease; }
+.hdr.completed .xp-fill { background: linear-gradient(90deg, #A78BFA, #FDE68A); }
 .xp-num { font-size: 10px; color: rgba(255,255,255,.7); text-align: right; line-height: 1; }
+.hdr.completed .xp-num { color: rgba(253,230,138,.7); }
 .streak { font-size: 12px; white-space: nowrap; }
 
 /* ─── Practice screen ─── */
@@ -238,6 +243,28 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
   15%  { opacity: 1;   transform: translateY(-12px)  scale(1.25); }
   100% { opacity: 0;   transform: translateY(-70px)  scale(0.9); }
 }
+
+/* ─── Hall of Fame ─── */
+.hall-flash { position: absolute; inset: 0; pointer-events: none; z-index: 800; opacity: 0; }
+.hall-flash.active { animation: hall-flash-anim 1s ease-out forwards; }
+@keyframes hall-flash-anim { 0% { opacity:0; background:radial-gradient(ellipse at center,#FFFDE7,#F59E0B); } 20% { opacity:.85; } 100% { opacity:0; } }
+.confetti-piece { position: absolute; pointer-events: none; z-index: 810; animation: cf-fall linear forwards; }
+@keyframes cf-fall { 0% { transform:translateY(-20px) rotate(0deg); opacity:1; } 85% { opacity:1; } 100% { transform:translateY(820px) rotate(720deg); opacity:0; } }
+.hall-ov { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: flex-end; justify-content: center; z-index: 820; opacity: 0; pointer-events: none; transition: opacity .35s; }
+.hall-ov.show { opacity: 1; pointer-events: auto; }
+.hall-card { background: linear-gradient(160deg,#1E1B4B 0%,#312E81 45%,#4C1D95 100%); border-radius: 24px 24px 0 0; padding: 28px 24px 44px; width: 100%; max-width: 430px; position: relative; overflow: hidden; transform: translateY(100%); transition: transform .45s cubic-bezier(.22,1,.36,1); }
+.hall-ov.show .hall-card { transform: translateY(0); }
+.hall-glow { position: absolute; width: 200%; height: 200%; top: -50%; left: -50%; background: radial-gradient(ellipse at center,rgba(250,204,21,.13) 0%,transparent 65%); pointer-events: none; }
+.hall-crown { font-size: 44px; text-align: center; margin-bottom: 2px; }
+.hall-title { text-align: center; font-size: 30px; font-weight: 900; color: #FDE68A; letter-spacing: 3px; text-shadow: 0 0 20px rgba(253,230,138,.8),0 2px 0 #1E1B4B; margin-bottom: 20px; }
+.hall-rows { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+.hall-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,.08); border-radius: 12px; padding: 10px 14px; }
+.hall-row-label { font-size: 13px; color: rgba(255,255,255,.7); font-weight: 600; }
+.hall-row-val   { font-size: 15px; color: #FDE68A; font-weight: 900; }
+.hall-btn { width: 100%; padding: 14px; background: linear-gradient(135deg,#7C3AED,#F59E0B); border: none; border-radius: 99px; font-size: 17px; font-weight: 900; color: #fff; cursor: pointer; font-family: inherit; letter-spacing: 1px; }
+.ts-star.gold { color: #FDE68A; opacity: .9; }
+.comp-badge { background: linear-gradient(135deg,#7C3AED,#F59E0B); border-radius: 99px; padding: 3px 10px; font-size: 11px; font-weight: 900; color: #fff; animation: comp-shine 2.5s ease-in-out infinite; }
+@keyframes comp-shine { 0%,100% { box-shadow: 0 2px 8px rgba(124,58,237,.4); } 50% { box-shadow: 0 2px 20px rgba(124,58,237,.8); } }
 </style>
 </head>
 <body>
@@ -246,12 +273,12 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
   <!-- Title screen -->
   <div class="title-screen" :class="{fading: titleFading}" v-if="showTitleScreen">
     <div class="ts-stars" aria-hidden="true">
-      <span v-for="s in titleStars" :key="s.id" class="ts-star"
+      <span v-for="s in titleStars" :key="s.id" class="ts-star" :class="{gold: profile.completed}"
         :style="{left:s.x+'%',top:s.y+'%',animationDelay:s.d+'s'}">★</span>
     </div>
     <div class="ts-bolt">⚡</div>
     <div class="ts-main">ポケ●ン<br>九九</div>
-    <div class="ts-sub">かけざんを れんしゅうしよう！</div>
+    <div class="ts-sub">{{ profile.completed ? 'でんどういり！ 1025ひき ぜんぶゲット！' : 'かけざんを れんしゅうしよう！' }}</div>
   </div>
 
   <!-- Level-up Pokémon reveal overlay -->
@@ -323,8 +350,8 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
   </div>
 
   <!-- Header (practice / result) -->
-  <div class="hdr" v-if="screen !== 'pokedex' && screen !== 'guide'">
-    <div class="hdr-title">⚡ ポケ●ン九九 ⚡</div>
+  <div class="hdr" :class="{completed: profile.completed}" v-if="screen !== 'pokedex' && screen !== 'guide'">
+    <div class="hdr-title">{{ profile.completed ? '👑' : '⚡' }} ポケ●ン九九 {{ profile.completed ? '👑' : '⚡' }}</div>
     <div class="hdr-row">
       <div class="lv-badge">Lv.{{ profile.level }}</div>
       <div class="xp-col">
@@ -538,6 +565,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
     <div class="dex-hdr">
       <button class="back-btn" @click="screen='practice'">←</button>
       <span style="font-size:16px;font-weight:700">{{ dexHeaderText }}</span>
+      <span v-if="profile.completed" class="comp-badge">✨ コンプリート</span>
     </div>
 
     <!-- ならびかえ行 -->
@@ -590,6 +618,37 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       </div>
     </div>
   </template>
+
+  <!-- 金フラッシュ -->
+  <div class="hall-flash" :class="{active: hallFlash}" @animationend="hallFlash=false"></div>
+
+  <!-- でんどういり -->
+  <div class="hall-ov" :class="{show: hallShow}">
+    <div class="hall-card">
+      <div class="hall-glow"></div>
+      <div class="hall-crown">👑</div>
+      <div class="hall-title">でんどういり！</div>
+      <div class="hall-rows">
+        <div class="hall-row">
+          <span class="hall-row-label">コンプリートした日</span>
+          <span class="hall-row-val">{{ completionStats.date }}</span>
+        </div>
+        <div class="hall-row">
+          <span class="hall-row-label">はじめてからの日数</span>
+          <span class="hall-row-val">{{ completionStats.days }}日間</span>
+        </div>
+        <div class="hall-row">
+          <span class="hall-row-label">こなしたセッション</span>
+          <span class="hall-row-val">{{ completionStats.sessions }}回</span>
+        </div>
+        <div class="hall-row">
+          <span class="hall-row-label">といたもんだい</span>
+          <span class="hall-row-val">{{ completionStats.questions }}問</span>
+        </div>
+      </div>
+      <button class="hall-btn" @click="dismissHallOfFame">やった！ ▶</button>
+    </div>
+  </div>
 
 </div>
 
@@ -1756,7 +1815,7 @@ function generateSession(stats) {
 }
 
 // ── Vue App ──
-const { createApp, ref, computed, reactive, onMounted } = Vue;
+const { createApp, ref, computed, reactive, onMounted, nextTick } = Vue;
 
 createApp({
   setup() {
@@ -1765,7 +1824,8 @@ createApp({
     const profile = reactive({
       level: 1, xp: 0, xpBase: 0, loginStreak: 1,
       lastLoginDate: '', todaySets: 0, todayDate: '',
-      totalCorrect: 0, totalWrong: 0, recentResults: []
+      totalCorrect: 0, totalWrong: 0, recentResults: [],
+      completed: false, completedAt: null, firstLoginDate: ''
     });
 
     const stats      = ref({});  // problem stats
@@ -1820,6 +1880,10 @@ createApp({
     // Starter Pokémon state
     const starterPhase   = ref(null); // null | 'prompt' | 'revealed'
     const starterPokemon = ref(null);
+
+    // Completion celebration state
+    const hallFlash = ref(false);
+    const hallShow  = ref(false);
     const starPositions  = Array.from({length:18}, (_,i) => ({
       id: i, x: Math.random()*100, y: Math.random()*100, d: (Math.random()*2).toFixed(1)
     }));
@@ -1833,6 +1897,18 @@ createApp({
       const r = profile.recentResults;
       if (!Array.isArray(r) || r.length < 10) return null;
       return Math.round(r.filter(Boolean).length / r.length * 100);
+    });
+
+    const completionStats = computed(() => {
+      const at = profile.completedAt;
+      const since = profile.firstLoginDate;
+      if (!at) return {date:'', days:0, sessions:0, questions:0};
+      const d = new Date(at);
+      const date = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+      const diff = since ? Math.ceil((d - new Date(since)) / 86400000) : 1;
+      const days = Math.max(1, diff);
+      const questions = (profile.totalCorrect || 0) + (profile.totalWrong || 0);
+      return {date, days, sessions: Math.round(questions / 10), questions};
     });
 
     const progressDots = computed(() => {
@@ -2152,11 +2228,48 @@ createApp({
       showLoginBonus.value = false;
     }
 
+    function spawnConfetti() {
+      const app = document.getElementById('app');
+      if (!app) return;
+      const colors = ['#F59E0B','#EF4444','#10B981','#3B82F6','#8B5CF6','#EC4899','#FDE68A','#fff'];
+      for (let i = 0; i < 80; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.left = Math.random() * 100 + '%';
+        el.style.background = colors[Math.floor(Math.random() * colors.length)];
+        el.style.width  = (Math.random() * 8 + 4) + 'px';
+        el.style.height = (Math.random() * 8 + 4) + 'px';
+        el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        el.style.animationDelay    = (Math.random() * 1.5) + 's';
+        app.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+      }
+    }
+
+    function triggerCompletion() {
+      profile.completed   = true;
+      profile.completedAt = new Date().toISOString();
+      saveProfile();
+      hallFlash.value = true;
+      navigator.vibrate && navigator.vibrate([200, 80, 200, 80, 500]);
+      spawnConfetti();
+      setTimeout(() => {
+        nextTick(() => { hallShow.value = true; });
+      }, 600);
+    }
+
+    function dismissHallOfFame() {
+      hallShow.value = false;
+      screen.value   = 'result';
+    }
+
     function revealLevelup() {
       levelupPhase.value = 'revealed';
       playXpSound();
     }
     function nextLevelupPokemon() {
+      const justReceived = levelupQueue.value[0];
       levelupQueue.value.shift();
       if (levelupQueue.value.length > 0) {
         levelupCurrent.value = levelupQueue.value[0];
@@ -2164,7 +2277,11 @@ createApp({
       } else {
         levelupPhase.value   = null;
         levelupCurrent.value = null;
-        screen.value = 'result';
+        if (justReceived && justReceived.no === 151) {
+          triggerCompletion();
+        } else {
+          screen.value = 'result';
+        }
       }
     }
 
@@ -2234,6 +2351,9 @@ createApp({
           profile.xp = profile.xpBase + (profile.xp || 0);
         }
         if (!Array.isArray(profile.recentResults)) profile.recentResults = [];
+        if (profile.completed === undefined) profile.completed = false;
+        if (!profile.completedAt) profile.completedAt = null;
+        if (!profile.firstLoginDate) profile.firstLoginDate = new Date().toDateString();
       }
 
       // Load stats
@@ -2255,6 +2375,9 @@ createApp({
         starterPokemon.value = starter;
         starterPhase.value   = 'prompt';
       }
+
+      // 後方互換: firstLoginDateが未設定の場合は今日をセット
+      if (!profile.firstLoginDate) profile.firstLoginDate = new Date().toDateString();
 
       // Daily login check
       const today = new Date().toDateString();
@@ -2323,7 +2446,8 @@ createApp({
       tap, del, submit, startSession, beginSession, sessionReady, openPokedex, openGuide, dismissLoginBonus,
       confirmXpCalc, revealLevelup, nextLevelupPokemon,
       revealStarter, dismissStarter, resetData, cancelReset, confirmReset,
-      showResetModal, resetCode, resetInput, zukanUrl, fmtDatetime, pokeType, reloadPage
+      showResetModal, resetCode, resetInput, zukanUrl, fmtDatetime, pokeType, reloadPage,
+      hallFlash, hallShow, completionStats, dismissHallOfFame
     };
   }
 }).mount('#app');
