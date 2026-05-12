@@ -428,6 +428,8 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       <div style="font-size:13px;color:#64748B;margin-top:4px">これ いじょう ポケ●ンはいません</div>
     </div>
 
+    <button class="cont-btn" @click="startSession">つぎへ ▶</button>
+
     <div class="res-card">
       <div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:8px">もんだいの ふりかえり</div>
       <div class="review-grid">
@@ -461,7 +463,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
         <div class="guide-table">
           <div class="guide-row"><span>せいかい</span><span>+5 Exp</span></div>
           <div class="guide-row"><span>パーフェクト（10もん ぜんせいかい）</span><span>+15 Exp</span></div>
-          <div class="guide-row"><span>コンボボーナス（れんぞくせいかい）</span><span>さいだい+5 Exp</span></div>
+          <div class="guide-row"><span>コンボボーナス（れんぞくせいかい）</span><span>さいだい+8 Exp</span></div>
           <div class="guide-row"><span>スピードボーナス（45びょういない）</span><span>+10 Exp</span></div>
           <div class="guide-row"><span>スピードボーナス（90びょういない）</span><span>+5 Exp</span></div>
           <div class="guide-row"><span>まいにちログインボーナス</span><span>+10 Exp</span></div>
@@ -472,7 +474,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 
       <div class="guide-section">
         <div class="guide-heading">🔥 コンボ</div>
-        <p>2もん いじょう れんぞく せいかいすると コンボボーナス Exp がもらえます。まちがえると リセットされます。</p>
+        <p>3もん いじょう れんぞく せいかいすると コンボボーナス Exp がもらえます。まちがえると リセットされます。さいだい 8 Exp（10れんぞくぶん）。</p>
       </div>
 
       <div class="guide-section">
@@ -1636,7 +1638,7 @@ function spawnXpFloat(text, color, fontSize) {
   app.appendChild(el);
   el.addEventListener('animationend', () => el.remove());
 }
-const APP_VERSION = '1.0.31';
+const APP_VERSION = '1.0.35';
 
 // ── XP constants ──
 const XP_CORRECT     = 5;
@@ -1646,7 +1648,7 @@ const XP_LOGIN       = 10;
 const XP_STREAK_DAY  = 3;
 const XP_STREAK_MAX  = 15;
 const XP_COMBO_STEP  = 1;
-const XP_COMBO_CAP   = 5;
+const XP_COMBO_CAP   = 8;
 const XP_TIME_FAST   = 10;   // 45秒以内
 const XP_TIME_MED    = 5;    // 90秒以内
 const TIME_FAST_MS   = 45000;
@@ -1951,7 +1953,7 @@ createApp({
         playXpSound();
         spawnXpFloat('+' + XP_CORRECT, '#F59E0B', '30px');
         previewXp.value += XP_CORRECT;
-        if (comboCount.value >= 2 && sessionComboBonus.value < XP_COMBO_CAP) {
+        if (comboCount.value >= 3 && sessionComboBonus.value < XP_COMBO_CAP) {
           const cb = Math.min(XP_COMBO_STEP, XP_COMBO_CAP - sessionComboBonus.value);
           sessionComboBonus.value += cb;
           previewXp.value += cb;
@@ -1996,7 +1998,7 @@ createApp({
         if (r === 'correct') {
           xpCorrect += XP_CORRECT;
           combo++;
-          if (combo >= 2 && comboBonus < XP_COMBO_CAP) {
+          if (combo >= 3 && comboBonus < XP_COMBO_CAP) {
             const b = Math.min(XP_COMBO_STEP, XP_COMBO_CAP - comboBonus);
             comboBonus += b;
           }
