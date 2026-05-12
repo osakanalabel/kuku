@@ -1883,11 +1883,21 @@ createApp({
 
     // ── Helpers ──
     function getRandomNewPokemon() {
-      const owned = new Set(collection.value.map(p => p.no));
-      const avail = POKEMON.filter(({no}) => !owned.has(no));
-      if (!avail.length) return null;
-      const {no, name} = avail[Math.floor(Math.random() * avail.length)];
-      return {no, name};
+      const owned    = new Set(collection.value.map(p => p.no));
+      const RESERVED = new Set([150, 151]); // ミュウツー、ミュウは最後の2枠
+      const avail    = POKEMON.filter(({no}) => !owned.has(no) && !RESERVED.has(no));
+      if (avail.length > 0) {
+        const {no, name} = avail[Math.floor(Math.random() * avail.length)];
+        return {no, name};
+      }
+      // 通常プール枯渇：ミュウツー → ミュウの順に解放
+      for (const no of [150, 151]) {
+        if (!owned.has(no)) {
+          const pk = POKEMON.find(p => p.no === no);
+          return pk ? {no: pk.no, name: pk.name} : null;
+        }
+      }
+      return null;
     }
 
     function doAddXP(amount) {
@@ -2236,7 +2246,9 @@ createApp({
         collection.value = savedColl;
       } else {
         // First run: give a random Pokémon and show the reveal presentation
-        const {no, name} = POKEMON[Math.floor(Math.random() * POKEMON.length)];
+        // ミュウツー(150)・ミュウ(151)はスターターから除外
+        const starterPool = POKEMON.filter(({no}) => no !== 150 && no !== 151);
+        const {no, name} = starterPool[Math.floor(Math.random() * starterPool.length)];
         const starter = {no, name, acquiredAt: new Date().toISOString()};
         collection.value = [starter];
         await dbPut('collection', collection.value, 'data');
