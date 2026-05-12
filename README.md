@@ -4,6 +4,8 @@
 
 🔗 **[あそんでみる](https://osakanalabel.github.io/kuku/)**
 
+![QRコード](https://osakanalabel.github.io/kuku/qr.png)
+
 ## 特徴
 
 - スマホブラウザ対応（縦画面固定）
