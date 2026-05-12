@@ -1607,7 +1607,7 @@ const POKEMON = [
 const POKEMON_MAP = new Map(POKEMON.map(p => [p.no, p]));
 const TYPES = ['ノーマル','ほのお','みず','くさ','でんき','こおり','かくとう','どく','じめん','ひこう','エスパー','むし','いわ','ゴースト','ドラゴン','あく','はがね','フェアリー'];
 
-const APP_VERSION = '1.0.25';
+const APP_VERSION = '1.0.26';
 
 // ── XP constants ──
 const XP_CORRECT     = 5;
@@ -1881,11 +1881,6 @@ createApp({
       return 'https://zukan.pokemon.co.jp/detail/' + String(no).padStart(4, '0');
     }
 
-    function fmtDate(iso) {
-      if (!iso) return '';
-      const d = new Date(iso);
-      return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
-    }
     function fmtDatetime(iso) {
       if (!iso) return '';
       const d = new Date(iso);
@@ -2212,7 +2207,7 @@ createApp({
       tap, del, submit, startSession, beginSession, sessionReady, openPokedex, openGuide, dismissLoginBonus,
       confirmXpCalc, revealLevelup, nextLevelupPokemon,
       revealStarter, dismissStarter, resetData, cancelReset, confirmReset,
-      showResetModal, resetCode, resetInput, zukanUrl, fmtDate, fmtDatetime, pokeType
+      showResetModal, resetCode, resetInput, zukanUrl, fmtDatetime, pokeType
     };
   }
 }).mount('#app');
