@@ -229,7 +229,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       <div class="starter-sub">ゲットした ポケモンは…</div>
       <div class="starter-no">No.{{ levelupCurrent.no }}</div>
       <div class="starter-name">{{ levelupCurrent.name }}</div>
-      <a :href="zukanUrl(levelupCurrent.no)" target="_blank" rel="noopener" class="starter-img-link">図鑑でみる →</a>
+      <a :href="zukanUrl(levelupCurrent.no)" target="_blank" rel="noopener" class="starter-img-link">ずかんでみる →</a>
       <button class="starter-btn" @click="nextLevelupPokemon">
         {{ levelupQueue.length > 1 ? 'つぎのポケモン！ ▶' : 'やった！うけとった！' }}
       </button>
@@ -255,7 +255,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       <div class="starter-sub">さいしょの ポケモンは…</div>
       <div class="starter-no">No.{{ starterPokemon.no }}</div>
       <div class="starter-name">{{ starterPokemon.name }}</div>
-      <a :href="zukanUrl(starterPokemon.no)" target="_blank" rel="noopener" class="starter-img-link">図鑑でみる →</a>
+      <a :href="zukanUrl(starterPokemon.no)" target="_blank" rel="noopener" class="starter-img-link">ずかんでみる →</a>
       <button class="starter-btn" @click="dismissStarter">よし！はじめよう！</button>
     </div>
   </div>
@@ -294,10 +294,10 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 
   <!-- ══ PRACTICE SCREEN ══ -->
   <div class="practice" v-if="screen==='practice'">
-  <div class="start-ov" v-if="sessionReady" @click="beginSession">
+  <div class="start-ov" v-if="sessionReady">
     <div class="start-card">
       <div class="start-label">10もん スタート！</div>
-      <button class="start-btn" @click.stop="beginSession">▶ スタート</button>
+      <button class="start-btn" @click="beginSession">▶ スタート</button>
     </div>
   </div>
     <div class="info-row">
@@ -427,11 +427,11 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
         <div class="guide-table">
           <div class="guide-row"><span>せいかい</span><span>+5 Exp</span></div>
           <div class="guide-row"><span>パーフェクト（10もん ぜんせいかい）</span><span>+15 Exp</span></div>
-          <div class="guide-row"><span>コンボボーナス（れんぞくせいかい）</span><span>最大+5 Exp</span></div>
-          <div class="guide-row"><span>スピードボーナス（45びょう以内）</span><span>+10 Exp</span></div>
-          <div class="guide-row"><span>スピードボーナス（90びょう以内）</span><span>+5 Exp</span></div>
+          <div class="guide-row"><span>コンボボーナス（れんぞくせいかい）</span><span>さいだい+5 Exp</span></div>
+          <div class="guide-row"><span>スピードボーナス（45びょういない）</span><span>+10 Exp</span></div>
+          <div class="guide-row"><span>スピードボーナス（90びょういない）</span><span>+5 Exp</span></div>
           <div class="guide-row"><span>まいにちログインボーナス</span><span>+10 Exp</span></div>
-          <div class="guide-row"><span>れんぞくログインボーナス</span><span>最大+15 Exp</span></div>
+          <div class="guide-row"><span>れんぞくログインボーナス</span><span>さいだい+15 Exp</span></div>
         </div>
         <p style="margin-top:8px">100 Exp たまると レベルアップ！<br>ポケモンが 1ぴきやってきます。</p>
       </div>
@@ -456,7 +456,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       <div class="guide-section">
         <div class="guide-heading">📦 ポケモンボックス</div>
         <p>レベルアップで ゲットした ポケモンを「ボックスをみる」から かくにんできます。</p>
-        <p>「図鑑でみる」から こうしきサイトで ポケモンを しらべられます。</p>
+        <p>「ずかんでみる」から こうしきサイトで ポケモンを しらべられます。</p>
         <p>ぜんぶで 1025ひき。ぜんぶ あつめよう！</p>
       </div>
 
@@ -465,7 +465,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
   </template>
 
   <!-- ══ RESET CONFIRM MODAL ══ -->
-  <div class="reset-ov" v-if="showResetModal" @click.self="cancelReset">
+  <div class="reset-ov" v-if="dbLoaded && showResetModal" @click.self="cancelReset">
     <div class="reset-card">
       <div class="reset-title">⚠️ データをけす</div>
       <div class="reset-msg">けしたデータは<br>もとにもどせません！</div>
@@ -495,7 +495,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
           <div class="dex-name">No.{{ p.no }} {{ p.name }}</div>
           <div class="dex-date">{{ fmtDate(p.acquiredAt) }}</div>
         </div>
-        <a :href="zukanUrl(p.no)" target="_blank" rel="noopener" class="dex-link">図鑑でみる</a>
+        <a :href="zukanUrl(p.no)" target="_blank" rel="noopener" class="dex-link">ずかんでみる</a>
       </div>
       <div style="text-align:center;padding:24px 0 8px">
         <button @click="resetData" style="background:none;border:none;color:#CBD5E1;font-size:11px;cursor:pointer;text-decoration:underline">データをすべてけす</button>
@@ -716,7 +716,7 @@ const POKEMON = [
 [1021,'タケルライコ'],[1022,'テツノイワオ'],[1023,'テツノカシラ'],[1024,'テラパゴス'],[1025,'モモワロウ']
 ];
 
-const APP_VERSION = '1.0.13';
+const APP_VERSION = '1.0.16';
 
 // ── XP constants ──
 const XP_CORRECT     = 5;
