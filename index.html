@@ -45,6 +45,10 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 .practice { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .info-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 14px 0; font-size: 12px; color: #555; flex-shrink: 0; }
 .goal-ok { color: var(--correct); font-weight: 700; }
+.acc-chip { border-radius: 99px; padding: 2px 10px; font-size: 12px; font-weight: 900; white-space: nowrap; }
+.acc-chip-good { background: #F0FDF4; border: 1.5px solid #BBF7D0; color: #15803D; }
+.acc-chip-mid  { background: #FFFBEB; border: 1.5px solid #FDE68A; color: #B45309; }
+.acc-chip-bad  { background: #FFF1F2; border: 1.5px solid #FECDD3; color: #BE123C; }
 .prog-bar { display: flex; gap: 5px; padding: 4px 14px; flex-shrink: 0; }
 .prog-dot { flex: 1; height: 7px; border-radius: 4px; background: #CBD5E1; }
 .prog-dot.ok { background: var(--correct); }
@@ -346,9 +350,8 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
     </div>
   </div>
     <div class="info-row">
-      <span>きょう {{ profile.todaySets }}セット</span>
-      <span class="goal-ok" v-if="profile.todaySets >= 3">★ もくひょう たっせい！</span>
-      <span v-else>もくひょう：3セット</span>
+      <span>きょう {{ profile.todaySets }}セット　<span class="goal-ok" v-if="profile.todaySets >= 3">★ もくひょう たっせい！</span><span v-else>もくひょう：3セット</span></span>
+      <span v-if="recentAccuracy !== null" class="acc-chip" :class="recentAccuracy >= 70 ? 'acc-chip-good' : recentAccuracy >= 50 ? 'acc-chip-mid' : 'acc-chip-bad'">せいかいりつ {{ recentAccuracy }}%</span>
     </div>
     <div class="prog-bar">
       <div v-for="(r,i) in progressDots" :key="i" class="prog-dot" :class="{ok:r==='correct',ng:r==='wrong'}"></div>
@@ -1762,7 +1765,7 @@ createApp({
     const profile = reactive({
       level: 1, xp: 0, xpBase: 0, loginStreak: 1,
       lastLoginDate: '', todaySets: 0, todayDate: '',
-      totalCorrect: 0, totalWrong: 0
+      totalCorrect: 0, totalWrong: 0, recentResults: []
     });
 
     const stats      = ref({});  // problem stats
@@ -1825,6 +1828,12 @@ createApp({
     const currentProblem = computed(() => sessionProblems.value[currentIndex.value]);
 
     const xpPercent = computed(() => Math.min(100, (profile.xp + previewXp.value - (profile.xpBase || 0)) / XP_THRESHOLD * 100));
+
+    const recentAccuracy = computed(() => {
+      const r = profile.recentResults;
+      if (!Array.isArray(r) || r.length < 10) return null;
+      return Math.round(r.filter(Boolean).length / r.length * 100);
+    });
 
     const progressDots = computed(() => {
       return Array.from({length:10}, (_,i) => sessionResults.value[i] || 'pending');
@@ -1990,6 +1999,9 @@ createApp({
         BOO_SOUND.currentTime = 0;
         BOO_SOUND.play().catch(() => {});
       }
+
+      profile.recentResults.push(ok);
+      if (profile.recentResults.length > 100) profile.recentResults.shift();
 
       saveStats();
       saveSession();
@@ -2211,6 +2223,7 @@ createApp({
           profile.xpBase = (profile.level - 1) * XP_THRESHOLD;
           profile.xp = profile.xpBase + (profile.xp || 0);
         }
+        if (!Array.isArray(profile.recentResults)) profile.recentResults = [];
       }
 
       // Load stats
@@ -2293,7 +2306,7 @@ createApp({
       levelupQueue, levelupPhase, levelupCurrent,
       starterPhase, starterPokemon, starPositions,
       currentProblem, xpPercent, progressDots, previewXp,
-      correctCount, resultMsg, sortedCollection, dexHeaderText, appVersion,
+      correctCount, resultMsg, sortedCollection, dexHeaderText, appVersion, recentAccuracy,
       sortKey, sortAsc, filterType, showTypeDropdown, setSortKey, selectType, TYPES,
       tap, del, submit, startSession, beginSession, sessionReady, openPokedex, openGuide, dismissLoginBonus,
       confirmXpCalc, revealLevelup, nextLevelupPokemon,
