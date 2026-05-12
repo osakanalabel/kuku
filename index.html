@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>ポケモン九九</title>
+<title>ポケ●ン九九</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <style>
 :root {
@@ -208,7 +208,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
         :style="{left:s.x+'%',top:s.y+'%',animationDelay:s.d+'s'}">★</span>
     </div>
     <div class="ts-bolt">⚡</div>
-    <div class="ts-main">ポケモン<br>九九</div>
+    <div class="ts-main">ポケ●ン<br>九九</div>
     <div class="ts-sub">かけざんを れんしゅうしよう！</div>
   </div>
 
@@ -221,17 +221,17 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
     <template v-if="levelupPhase==='prompt'">
       <div style="font-size:17px;font-weight:900;color:#A78BFA;margin-bottom:14px;letter-spacing:1px">🎉 レベルアップ！</div>
       <div class="starter-icon bounce">🎁</div>
-      <div class="starter-ttl">あたらしい ポケモンが やってきた！</div>
+      <div class="starter-ttl">あたらしい ポケ●ンが やってきた！</div>
       <div class="starter-hint">タップして かくにん！</div>
     </template>
     <div class="starter-reveal" v-else @click.stop>
       <div style="font-size:40px">✨🎊✨</div>
-      <div class="starter-sub">ゲットした ポケモンは…</div>
+      <div class="starter-sub">ゲットした ポケ●ンは…</div>
       <div class="starter-no">No.{{ levelupCurrent.no }}</div>
       <div class="starter-name">{{ levelupCurrent.name }}</div>
       <a :href="zukanUrl(levelupCurrent.no)" target="_blank" rel="noopener" class="starter-img-link">ずかんでみる →</a>
       <button class="starter-btn" @click="nextLevelupPokemon">
-        {{ levelupQueue.length > 1 ? 'つぎのポケモン！ ▶' : 'やった！うけとった！' }}
+        {{ levelupQueue.length > 1 ? 'つぎのポケ●ン！ ▶' : 'やった！うけとった！' }}
       </button>
     </div>
   </div>
@@ -246,13 +246,13 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
     <!-- Phase 1: mystery -->
     <template v-if="starterPhase==='prompt'">
       <div class="starter-icon bounce">🎁</div>
-      <div class="starter-ttl">さいしょの ポケモンが やってきた！</div>
+      <div class="starter-ttl">さいしょの ポケ●ンが やってきた！</div>
       <div class="starter-hint">タップして かくにん！</div>
     </template>
     <!-- Phase 2: revealed -->
     <div class="starter-reveal" v-else @click.stop>
       <div style="font-size:40px">✨🎉✨</div>
-      <div class="starter-sub">さいしょの ポケモンは…</div>
+      <div class="starter-sub">さいしょの ポケ●ンは…</div>
       <div class="starter-no">No.{{ starterPokemon.no }}</div>
       <div class="starter-name">{{ starterPokemon.name }}</div>
       <a :href="zukanUrl(starterPokemon.no)" target="_blank" rel="noopener" class="starter-img-link">ずかんでみる →</a>
@@ -268,7 +268,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       <div class="lb-streak" v-if="profile.loginStreak > 1">{{ profile.loginStreak }}にち れんぞく！🔥</div>
       <div class="lb-xp">+{{ loginBonusXP }} XP</div>
       <div class="lb-poke" v-if="loginPokemons.length > 0">
-        ポケモンをゲット：{{ loginPokemons.map(p=>p.name).join('、') }}
+        ポケ●ンをゲット：{{ loginPokemons.map(p=>p.name).join('、') }}
       </div>
       <div class="lb-hint">タップしてとじる</div>
     </div>
@@ -281,7 +281,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 
   <!-- Header (practice / result) -->
   <div class="hdr" v-if="screen !== 'pokedex' && screen !== 'guide'">
-    <div class="hdr-title">⚡ ポケモン九九 ⚡</div>
+    <div class="hdr-title">⚡ ポケ●ン九九 ⚡</div>
     <div class="hdr-row">
       <div class="lv-badge">Lv.{{ profile.level }}</div>
       <div class="xp-col">
@@ -366,7 +366,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       </div>
       <div class="xpcalc-lv" v-if="leveledUp">🎉 レベルアップ！ Lv.{{ profile.level }}</div>
       <button class="xpcalc-btn" @click="confirmXpCalc">
-        {{ newPokemons.length > 0 ? 'ポケモンをうけとる ▶' : 'けっかをみる ▶' }}
+        {{ newPokemons.length > 0 ? 'ポケ●ンをうけとる ▶' : 'けっかをみる ▶' }}
       </button>
     </div>
   </div>
@@ -391,7 +391,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
     <div class="poke-card" v-if="leveledUp && newPokemons.length===0">
       <div style="font-size:22px">✨</div>
       <div style="font-weight:700;margin-top:4px">1025ひき ぜんぶゲット！</div>
-      <div style="font-size:13px;color:#64748B;margin-top:4px">これ いじょう ポケモンはいません</div>
+      <div style="font-size:13px;color:#64748B;margin-top:4px">これ いじょう ポケ●ンはいません</div>
     </div>
 
     <div class="res-card">
@@ -433,7 +433,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
           <div class="guide-row"><span>まいにちログインボーナス</span><span>+10 Exp</span></div>
           <div class="guide-row"><span>れんぞくログインボーナス</span><span>さいだい+15 Exp</span></div>
         </div>
-        <p style="margin-top:8px">100 Exp たまると レベルアップ！<br>ポケモンが 1ぴきやってきます。</p>
+        <p style="margin-top:8px">100 Exp たまると レベルアップ！<br>ポケ●ンが 1ぴきやってきます。</p>
       </div>
 
       <div class="guide-section">
@@ -454,9 +454,9 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       </div>
 
       <div class="guide-section">
-        <div class="guide-heading">📦 ポケモンボックス</div>
-        <p>レベルアップで ゲットした ポケモンを「ボックスをみる」から かくにんできます。</p>
-        <p>「ずかんでみる」から こうしきサイトで ポケモンを しらべられます。</p>
+        <div class="guide-heading">📦 ポケ●ンボックス</div>
+        <p>レベルアップで ゲットした ポケ●ンを「ボックスをみる」から かくにんできます。</p>
+        <p>「ずかんでみる」から こうしきサイトで ポケ●ンを しらべられます。</p>
         <p>ぜんぶで 1025ひき。ぜんぶ あつめよう！</p>
       </div>
 
@@ -484,12 +484,12 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
     <div class="dex-hdr">
       <button class="back-btn" @click="screen='practice'">←</button>
       <span style="font-size:16px;font-weight:700">
-        ポケモンボックス（{{ collection.length }}/1025）
+        ポケ●ンボックス（{{ collection.length }}/1025）
       </span>
     </div>
     <div class="dex-list">
-      <div class="dex-comp" v-if="collection.length>=1025">✨ ぜんぶのポケモンをゲットした！すごい！</div>
-      <div class="dex-empty" v-if="collection.length===0">まだポケモンがいません</div>
+      <div class="dex-comp" v-if="collection.length>=1025">✨ ぜんぶのポケ●ンをゲットした！すごい！</div>
+      <div class="dex-empty" v-if="collection.length===0">まだポケ●ンがいません</div>
       <div class="dex-entry" v-for="p in sortedCollection" :key="p.no">
         <div class="dex-info">
           <div class="dex-name">No.{{ p.no }} {{ p.name }}</div>
@@ -716,7 +716,7 @@ const POKEMON = [
 [1021,'タケルライコ'],[1022,'テツノイワオ'],[1023,'テツノカシラ'],[1024,'テラパゴス'],[1025,'モモワロウ']
 ];
 
-const APP_VERSION = '1.0.16';
+const APP_VERSION = '1.0.17';
 
 // ── XP constants ──
 const XP_CORRECT     = 5;
