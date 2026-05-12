@@ -100,6 +100,18 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 .guide-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 8px; background: #F1F5F9; border-radius: 8px; }
 .guide-row span:last-child { font-weight: 700; color: #059669; white-space: nowrap; margin-left: 8px; }
 .guide-ver { text-align: center; font-size: 12px; color: #94A3B8; padding: 8px 0 4px; }
+.reset-ov { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 500; padding: 20px; }
+.reset-card { background: #fff; border-radius: 20px; padding: 26px 22px 20px; width: 100%; max-width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+.reset-title { font-size: 18px; font-weight: 900; text-align: center; margin-bottom: 10px; }
+.reset-msg { font-size: 15px; text-align: center; color: #DC2626; font-weight: 700; line-height: 1.6; margin-bottom: 18px; }
+.reset-code-label { font-size: 12px; color: #64748B; text-align: center; margin-bottom: 6px; }
+.reset-code { font-size: 32px; font-weight: 900; letter-spacing: 6px; text-align: center; color: #1E293B; background: #F1F5F9; border-radius: 10px; padding: 10px 0; margin-bottom: 14px; }
+.reset-input { width: 100%; font-size: 24px; font-weight: 700; text-align: center; letter-spacing: 6px; border: 2px solid #CBD5E1; border-radius: 10px; padding: 10px; outline: none; margin-bottom: 16px; }
+.reset-input:focus { border-color: var(--blue); }
+.reset-btns { display: flex; gap: 10px; }
+.reset-cancel { flex: 1; padding: 12px; border: 2px solid #CBD5E1; border-radius: 12px; background: #fff; font-size: 15px; font-weight: 700; color: #64748B; cursor: pointer; }
+.reset-confirm { flex: 1; padding: 12px; border: none; border-radius: 12px; background: #DC2626; font-size: 15px; font-weight: 700; color: #fff; cursor: pointer; }
+.reset-confirm:disabled { background: #FCA5A5; cursor: default; }
 .back-btn { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; line-height: 1; }
 .dex-list { flex: 1; overflow-y: auto; padding: 8px 14px; }
 .dex-entry { background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
@@ -213,7 +225,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       <div class="starter-sub">ゲットした ポケモンは…</div>
       <div class="starter-no">No.{{ levelupCurrent.no }}</div>
       <div class="starter-name">{{ levelupCurrent.name }}</div>
-      <a :href="googleUrl(levelupCurrent.name)" target="_blank" rel="noopener" class="starter-img-link">がぞうをみる →</a>
+      <a :href="zukanUrl(levelupCurrent.no)" target="_blank" rel="noopener" class="starter-img-link">図鑑でみる →</a>
       <button class="starter-btn" @click="nextLevelupPokemon">
         {{ levelupQueue.length > 1 ? 'つぎのポケモン！ ▶' : 'やった！うけとった！' }}
       </button>
@@ -239,7 +251,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       <div class="starter-sub">さいしょの ポケモンは…</div>
       <div class="starter-no">No.{{ starterPokemon.no }}</div>
       <div class="starter-name">{{ starterPokemon.name }}</div>
-      <a :href="googleUrl(starterPokemon.name)" target="_blank" rel="noopener" class="starter-img-link">がぞうをみる →</a>
+      <a :href="zukanUrl(starterPokemon.no)" target="_blank" rel="noopener" class="starter-img-link">図鑑でみる →</a>
       <button class="starter-btn" @click="dismissStarter">よし！はじめよう！</button>
     </div>
   </div>
@@ -310,7 +322,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 
     <div class="footer">
       <button class="dex-btn" @click="openPokedex">
-        <ruby>図鑑<rt>ずかん</rt></ruby>をみる（{{ collection.length }}/1025）
+        ボックスをみる（{{ collection.length }}/1025）
       </button>
       <button class="guide-btn" @click="openGuide">？</button>
     </div>
@@ -332,6 +344,10 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
         <div class="xpcalc-row" v-if="xpBreakdown.combo > 0">
           <span>コンボ 🔥</span>
           <span class="xpcalc-plus">+{{ xpBreakdown.combo }} Exp</span>
+        </div>
+        <div class="xpcalc-row" v-if="xpBreakdown.time > 0">
+          <span>スピード ⚡</span>
+          <span class="xpcalc-plus">+{{ xpBreakdown.time }} Exp</span>
         </div>
         <div class="xpcalc-total-row">
           <span>ごうけい</span>
@@ -402,6 +418,8 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
           <div class="guide-row"><span>せいかい</span><span>+5 Exp</span></div>
           <div class="guide-row"><span>パーフェクト（10もん ぜんせいかい）</span><span>+15 Exp</span></div>
           <div class="guide-row"><span>コンボボーナス（れんぞくせいかい）</span><span>最大+5 Exp</span></div>
+          <div class="guide-row"><span>スピードボーナス（45びょう以内）</span><span>+10 Exp</span></div>
+          <div class="guide-row"><span>スピードボーナス（90びょう以内）</span><span>+5 Exp</span></div>
           <div class="guide-row"><span>まいにちログインボーナス</span><span>+10 Exp</span></div>
           <div class="guide-row"><span>れんぞくログインボーナス</span><span>最大+15 Exp</span></div>
         </div>
@@ -414,13 +432,21 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       </div>
 
       <div class="guide-section">
+        <div class="guide-heading">⚡ スピードボーナス</div>
+        <p>もんだいを かんがえた じかんの ごうけいが はやいと ボーナス Exp がもらえます。</p>
+        <p>※ フィードバック ひょうじちゅうは カウントしません。</p>
+        <p>※ 6もん いじょう せいかいした ばあいのみ たいしょうです。</p>
+      </div>
+
+      <div class="guide-section">
         <div class="guide-heading">📅 ログインボーナス</div>
         <p>まいにち あそぶと ログインボーナスがもらえます。れんぞくすると さらに おおきな ボーナスに！</p>
       </div>
 
       <div class="guide-section">
-        <div class="guide-heading">📖 ポケモン<ruby>図鑑<rt>ずかん</rt></ruby></div>
-        <p>レベルアップで ゲットした ポケモンを「<ruby>図鑑<rt>ずかん</rt></ruby>をみる」から かくにんできます。</p>
+        <div class="guide-heading">📦 ポケモンボックス</div>
+        <p>レベルアップで ゲットした ポケモンを「ボックスをみる」から かくにんできます。</p>
+        <p>「図鑑でみる」から こうしきサイトで ポケモンを しらべられます。</p>
         <p>ぜんぶで 1025ひき。ぜんぶ あつめよう！</p>
       </div>
 
@@ -428,12 +454,27 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
     </div>
   </template>
 
+  <!-- ══ RESET CONFIRM MODAL ══ -->
+  <div class="reset-ov" v-if="showResetModal" @click.self="cancelReset">
+    <div class="reset-card">
+      <div class="reset-title">⚠️ データをけす</div>
+      <div class="reset-msg">けしたデータは<br>もとにもどせません！</div>
+      <div class="reset-code-label">この番号を入力してください</div>
+      <div class="reset-code">{{ resetCode }}</div>
+      <input class="reset-input" v-model="resetInput" type="tel" inputmode="numeric" maxlength="6" placeholder="000000">
+      <div class="reset-btns">
+        <button class="reset-cancel" @click="cancelReset">キャンセル</button>
+        <button class="reset-confirm" @click="confirmReset" :disabled="resetInput !== resetCode">けす</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ POKÉDEX SCREEN ══ -->
   <template v-if="screen==='pokedex'">
     <div class="dex-hdr">
       <button class="back-btn" @click="screen='practice'">←</button>
       <span style="font-size:16px;font-weight:700">
-        ポケモン<ruby>図鑑<rt>ずかん</rt></ruby>（{{ collection.length }}/1025）
+        ポケモンボックス（{{ collection.length }}/1025）
       </span>
     </div>
     <div class="dex-list">
@@ -444,7 +485,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
           <div class="dex-name">No.{{ p.no }} {{ p.name }}</div>
           <div class="dex-date">{{ fmtDate(p.acquiredAt) }}</div>
         </div>
-        <a :href="googleUrl(p.name)" target="_blank" rel="noopener" class="dex-link">がぞう</a>
+        <a :href="zukanUrl(p.no)" target="_blank" rel="noopener" class="dex-link">図鑑でみる</a>
       </div>
       <div style="text-align:center;padding:24px 0 8px">
         <button @click="resetData" style="background:none;border:none;color:#CBD5E1;font-size:11px;cursor:pointer;text-decoration:underline">データをすべてけす</button>
@@ -665,7 +706,7 @@ const POKEMON = [
 [1021,'タケルライコ'],[1022,'テツノイワオ'],[1023,'テツノカシラ'],[1024,'テラパゴス'],[1025,'モモワロウ']
 ];
 
-const APP_VERSION = '1.0.5';
+const APP_VERSION = '1.0.10';
 
 // ── XP constants ──
 const XP_CORRECT     = 5;
@@ -676,6 +717,11 @@ const XP_STREAK_DAY  = 3;
 const XP_STREAK_MAX  = 15;
 const XP_COMBO_STEP  = 1;
 const XP_COMBO_CAP   = 5;
+const XP_TIME_FAST   = 10;   // 45秒以内
+const XP_TIME_MED    = 5;    // 90秒以内
+const TIME_FAST_MS   = 45000;
+const TIME_MED_MS    = 90000;
+const TIME_MIN_CORRECT = 6;  // タイムボーナス対象の最低正解数
 
 // ── IndexedDB ──
 const DB_NAME = 'kukuApp', DB_VER = 2;
@@ -779,6 +825,8 @@ createApp({
     const feedback        = ref(null);   // null | 'correct' | 'wrong'
     const correctAns      = ref(null);
     let feedbackTimer     = null;
+    let questionStartTime = 0;   // 問題表示時刻
+    let thinkingTimeMs    = 0;   // 純粋思考時間の累計
 
     // Result state
     const xpGained    = ref(0);
@@ -869,10 +917,11 @@ createApp({
 
     function saveSession() {
       dbPut('session', {
-        problems:   sessionProblems.value,
-        results:    sessionResults.value,
-        comboCount: comboCount.value,
-        maxCombo:   maxCombo.value
+        problems:      sessionProblems.value,
+        results:       sessionResults.value,
+        comboCount:    comboCount.value,
+        maxCombo:      maxCombo.value,
+        thinkingTimeMs
       }, 'data');
     }
     function clearSession() {
@@ -886,8 +935,8 @@ createApp({
       await dbPut('problemStats', stats.value, 'data');
     }
 
-    function googleUrl(name) {
-      return 'https://www.google.com/search?q=' + encodeURIComponent(name + ' ポケモン') + '&tbm=isch';
+    function zukanUrl(no) {
+      return 'https://zukan.pokemon.co.jp/detail/' + String(no).padStart(4, '0');
     }
 
     function fmtDate(iso) {
@@ -909,6 +958,7 @@ createApp({
     function submit() {
       if (!userInput.value || feedback.value) return;
       clearTimeout(feedbackTimer);
+      thinkingTimeMs += Date.now() - questionStartTime;
 
       const prob = currentProblem.value;
       const ans  = parseInt(userInput.value);
@@ -945,6 +995,7 @@ createApp({
         finishSession();
       } else {
         currentIndex.value++;
+        questionStartTime = Date.now();
       }
     }
 
@@ -966,9 +1017,15 @@ createApp({
         } else { combo = 0; }
       }
       const xpPerfect = correctCount.value === 10 ? XP_PERFECT : 0;
-      const xpTotal   = xpCorrect + xpPerfect + comboBonus;
+      const nCorrect  = correctCount.value;
+      let xpTime = 0;
+      if (nCorrect >= TIME_MIN_CORRECT) {
+        if (thinkingTimeMs <= TIME_FAST_MS)     xpTime = XP_TIME_FAST;
+        else if (thinkingTimeMs <= TIME_MED_MS) xpTime = XP_TIME_MED;
+      }
+      const xpTotal = xpCorrect + xpPerfect + comboBonus + xpTime;
 
-      xpBreakdown.value = {correct: xpCorrect, combo: comboBonus, perfect: xpPerfect, total: xpTotal};
+      xpBreakdown.value = {correct: xpCorrect, combo: comboBonus, perfect: xpPerfect, time: xpTime, total: xpTotal};
       xpGained.value    = xpTotal;
 
       const {levels, gained} = doAddXP(xpTotal);
@@ -1008,8 +1065,10 @@ createApp({
       levelupQueue.value    = [];
       levelupPhase.value    = null;
       levelupCurrent.value  = null;
+      thinkingTimeMs    = 0;
+      questionStartTime = Date.now();
       clearSession();
-      screen.value          = 'practice';
+      screen.value      = 'practice';
     }
 
     function openPokedex() {
@@ -1052,12 +1111,21 @@ createApp({
       starterPhase.value = null;
     }
 
-    async function resetData() {
-      const ok1 = window.confirm('データをぜんぶ けします。\nほんとうに よろしいですか？');
-      if (!ok1) return;
-      const code = String(Math.floor(100000 + Math.random() * 900000));
-      const input = window.prompt(`さいかくにん：けしたデータは もとにもどせません！\n\n以下の番号を入力してください：\n\n　${code}\n`);
-      if (input !== code) return;
+    const showResetModal = ref(false);
+    const resetCode      = ref('');
+    const resetInput     = ref('');
+
+    function resetData() {
+      resetCode.value  = String(Math.floor(100000 + Math.random() * 900000));
+      resetInput.value = '';
+      showResetModal.value = true;
+    }
+    function cancelReset() {
+      showResetModal.value = false;
+    }
+    async function confirmReset() {
+      if (resetInput.value !== resetCode.value) return;
+      showResetModal.value = false;
       await dbClear('profile');
       await dbClear('problemStats');
       await dbClear('collection');
@@ -1157,7 +1225,9 @@ createApp({
           currentIndex.value    = savedSess.results.length;
           comboCount.value      = savedSess.comboCount || 0;
           maxCombo.value        = savedSess.maxCombo   || 0;
-          screen.value          = 'practice';
+          thinkingTimeMs    = savedSess.thinkingTimeMs || 0;
+          screen.value      = 'practice';
+          questionStartTime = Date.now();
           resumed = true;
         }
       } catch(e) { /* セッション読み込み失敗時はフレッシュスタート */ }
@@ -1177,7 +1247,8 @@ createApp({
       correctCount, resultMsg, sortedCollection, appVersion: APP_VERSION,
       tap, del, submit, startSession, openPokedex, openGuide, dismissLoginBonus,
       confirmXpCalc, revealLevelup, nextLevelupPokemon,
-      revealStarter, dismissStarter, resetData, googleUrl, fmtDate
+      revealStarter, dismissStarter, resetData, cancelReset, confirmReset,
+      showResetModal, resetCode, resetInput, zukanUrl, fmtDate
     };
   }
 }).mount('#app');
