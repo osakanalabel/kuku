@@ -1638,7 +1638,7 @@ function spawnXpFloat(text, color, fontSize) {
   app.appendChild(el);
   el.addEventListener('animationend', () => el.remove());
 }
-const APP_VERSION = '1.0.38';
+const APP_VERSION = '1.0.39';
 
 // ── XP constants ──
 const XP_CORRECT     = 5;
@@ -2017,6 +2017,8 @@ createApp({
       xpGained.value    = xpTotal;
 
       const {levels, gained} = doAddXP(xpTotal);
+      previewXp.value       = 0;
+      sessionComboBonus.value = 0;
       leveledUp.value   = levels > 0;
       newPokemons.value = gained;
 
