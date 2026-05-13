@@ -147,6 +147,14 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 .rule-notice-change .new { color: #059669; }
 .rule-notice-btn { width: 100%; padding: 12px; background: var(--blue); border: none; border-radius: 99px; color: #fff; font-size: 16px; font-weight: 900; cursor: pointer; font-family: inherit; letter-spacing: 1px; }
 .reset-ov { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 500; padding: 20px; }
+.data-guide { font-size: 12px; color: #64748B; line-height: 1.7; background: #F8FAFC; border-radius: 10px; padding: 10px 12px; }
+.export-box { background: #F1F5F9; border-radius: 10px; padding: 8px 10px; font-size: 10px; font-family: monospace; color: #334155; word-break: break-all; line-height: 1.6; min-height: 48px; user-select: all; max-height: 80px; overflow-y: auto; }
+.import-ta { width: 100%; background: #F1F5F9; border: 2px solid transparent; border-radius: 10px; padding: 8px 10px; font-size: 10px; font-family: monospace; color: #334155; line-height: 1.6; min-height: 64px; resize: none; outline: none; transition: border-color .15s; }
+.import-ta.error { border-color: #FCA5A5; }
+.data-toast { font-size: 12px; font-weight: 700; text-align: center; }
+.data-toast.ok  { color: #059669; }
+.data-toast.err { color: #DC2626; }
+.data-action-btn { width: 100%; padding: 12px; background: var(--blue); border: none; border-radius: 99px; color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit; letter-spacing: 1px; }
 .reset-card { background: #fff; border-radius: 20px; padding: 26px 22px 20px; width: 100%; max-width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,.3); }
 .reset-title { font-size: 18px; font-weight: 900; text-align: center; margin-bottom: 10px; }
 .reset-msg { font-size: 15px; text-align: center; color: #DC2626; font-weight: 700; line-height: 1.6; margin-bottom: 18px; }
@@ -598,12 +606,53 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
     </div>
   </template>
 
+  <!-- ══ EXPORT MODAL ══ -->
+  <div class="reset-ov" v-if="showExportModal" @click.self="showExportModal=false">
+    <div class="reset-card" style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-weight:900;font-size:15px;text-align:center">📤 データをほぞんする</div>
+      <div class="data-guide">このコードをコピーして、LINEのメモやGoogle Keepなどべつのアプリにほぞんしておこう。あたらしいきたいにうつるときに、よみこみに使えるよ。</div>
+      <div class="export-box">{{ backupToCode(makeBackup()) }}</div>
+      <button class="data-action-btn" @click="doExport">コードをコピーする</button>
+      <div class="data-toast ok" v-if="exportToast">{{ exportToast }}</div>
+      <button class="reset-cancel" @click="showExportModal=false">とじる</button>
+    </div>
+  </div>
+
+  <!-- ══ IMPORT MODAL ══ -->
+  <div class="reset-ov" v-if="showImportModal" @click.self="showImportModal=false">
+    <div class="reset-card" style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-weight:900;font-size:15px;text-align:center">📥 データをよみこむ</div>
+
+      <!-- フェーズ1: コード入力 -->
+      <template v-if="importPhase==='input'">
+        <div class="data-guide">ほぞんしておいたコードをはりつけてね。いまのデータはコードのデータにいれかわるよ。まちがえないようにきをつけてね！</div>
+        <textarea v-model="importInput" placeholder="ここにコードをはりつける" :class="['import-ta', {error: importToastType==='err'}]"></textarea>
+        <button class="data-action-btn" @click="startImportConfirm">よみこむ</button>
+        <div :class="['data-toast', importToastType]" v-if="importToast">{{ importToast }}</div>
+      </template>
+
+      <!-- フェーズ2: 確認コード入力 -->
+      <template v-if="importPhase==='confirm'">
+        <div class="reset-msg">いまのデータは<br>すべてうわがきされます！</div>
+        <div class="reset-code-label">このばんごうをにゅうりょくしてください</div>
+        <div class="reset-code">{{ importConfirmCode }}</div>
+        <input class="reset-input" v-model="importConfirmInput" type="tel" inputmode="numeric" maxlength="6" placeholder="000000">
+        <div class="reset-btns">
+          <button class="reset-cancel" @click="importPhase='input'">もどる</button>
+          <button class="reset-confirm" @click="doImport" :disabled="importConfirmInput !== importConfirmCode">よみこむ</button>
+        </div>
+      </template>
+
+      <button class="reset-cancel" @click="showImportModal=false">とじる</button>
+    </div>
+  </div>
+
   <!-- ══ RESET CONFIRM MODAL ══ -->
   <div class="reset-ov" v-if="dbLoaded && showResetModal" @click.self="cancelReset">
     <div class="reset-card">
       <div class="reset-title">⚠️ データをけす</div>
       <div class="reset-msg">けしたデータは<br>もとにもどせません！</div>
-      <div class="reset-code-label">この番号を入力してください</div>
+      <div class="reset-code-label">このばんごうをにゅうりょくしてください</div>
       <div class="reset-code">{{ resetCode }}</div>
       <input class="reset-input" v-model="resetInput" type="tel" inputmode="numeric" maxlength="6" placeholder="000000">
       <div class="reset-btns">
@@ -666,7 +715,9 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
         </div>
         <a :href="zukanUrl(p.no)" target="_blank" rel="noopener" class="dex-link">ずかんでみる</a>
       </div>
-      <div style="text-align:center;padding:24px 0 8px">
+      <div style="text-align:center;padding:24px 0 8px;display:flex;flex-direction:column;align-items:center;gap:10px">
+        <button @click="showExportModal=true" style="background:none;border:none;color:#94A3B8;font-size:11px;cursor:pointer;text-decoration:underline">データをほぞんする</button>
+        <button @click="showImportModal=true; importInput=''; importToast=''; importPhase='input'" style="background:none;border:none;color:#94A3B8;font-size:11px;cursor:pointer;text-decoration:underline">データをよみこむ</button>
         <button @click="resetData" style="background:none;border:none;color:#CBD5E1;font-size:11px;cursor:pointer;text-decoration:underline">データをすべてけす</button>
       </div>
     </div>
@@ -2387,6 +2438,65 @@ createApp({
       starterPhase.value = null;
     }
 
+    // ── Export / Import ──
+    const showExportModal    = ref(false);
+    const showImportModal    = ref(false);
+    const exportToast        = ref('');
+    const importInput        = ref('');
+    const importPhase        = ref('input');   // 'input' | 'confirm'
+    const importConfirmCode  = ref('');
+    const importConfirmInput = ref('');
+    const importToast        = ref('');
+    const importToastType    = ref('');
+
+    function makeBackup() {
+      return { profile: JSON.parse(JSON.stringify(profile)), collection: collection.value, problemStats: stats.value };
+    }
+    function backupToCode(backup) {
+      return btoa(unescape(encodeURIComponent(JSON.stringify(backup))));
+    }
+    function codeToBackup(code) {
+      return JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+    }
+    function doExport() {
+      navigator.clipboard.writeText(backupToCode(makeBackup()))
+        .then(() => { exportToast.value = 'コピーしました！'; setTimeout(() => { exportToast.value = ''; }, 3000); })
+        .catch(() => {});
+    }
+    function startImportConfirm() {
+      try {
+        const data = codeToBackup(importInput.value);
+        if (typeof data.profile?.level !== 'number' || !Array.isArray(data.collection)) throw new Error();
+        importConfirmCode.value  = String(Math.floor(100000 + Math.random() * 900000));
+        importConfirmInput.value = '';
+        importPhase.value = 'confirm';
+      } catch {
+        _showImportToast('err', 'コードがただしくありません');
+      }
+    }
+    async function doImport() {
+      try {
+        const data = codeToBackup(importInput.value);
+        const p = data.profile;
+        const coll = data.collection;
+        Object.assign(profile, p);
+        collection.value = coll;
+        stats.value = data.problemStats ?? {};
+        await saveProfile();
+        await dbPut('collection', coll, 'data');
+        await dbPut('problemStats', stats.value, 'data');
+        showImportModal.value = false;
+      } catch {
+        importPhase.value = 'input';
+        _showImportToast('err', 'よみこみに失敗しました');
+      }
+    }
+    function _showImportToast(type, msg) {
+      importToast.value = msg;
+      importToastType.value = type;
+      setTimeout(() => { importToast.value = ''; }, 3000);
+    }
+
     const showResetModal = ref(false);
     const resetCode      = ref('');
     const resetInput     = ref('');
@@ -2541,6 +2651,9 @@ createApp({
       confirmXpCalc, revealLevelup, nextLevelupPokemon,
       revealStarter, dismissStarter, resetData, cancelReset, confirmReset,
       showResetModal, resetCode, resetInput, zukanUrl, fmtDatetime, pokeType, reloadPage,
+      showExportModal, showImportModal, exportToast, importInput, importToast, importToastType,
+      doExport, startImportConfirm, doImport, makeBackup, backupToCode,
+      importPhase, importConfirmCode, importConfirmInput,
       hallFlash, hallShow, completionStats, dismissHallOfFame, secretWord,
       xpBarFull, showRuleNotice, dismissRuleNotice
     };
