@@ -42,6 +42,14 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 .xp-wrap { background: rgba(255,255,255,.25); border-radius: 4px; height: 10px; overflow: hidden; }
 .xp-fill { height: 100%; background: var(--gold); transition: width .4s ease; }
 .hdr.completed .xp-fill { background: linear-gradient(90deg, #A78BFA, #FDE68A); }
+.xp-badge-wrap { position: relative; }
+.xp-up-label { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 900; color: #FDE68A; letter-spacing: 1px; opacity: 0; pointer-events: none; text-shadow: 0 1px 4px rgba(0,0,0,.5); white-space: nowrap; }
+@keyframes xp-up-pop { 0% { opacity:0; transform:translateX(-50%) translateY(2px); } 25% { opacity:1; transform:translateX(-50%) translateY(-5px); } 70% { opacity:1; transform:translateX(-50%) translateY(-8px); } 100% { opacity:0; transform:translateX(-50%) translateY(-14px); } }
+@keyframes xp-badge-bounce { 0% { transform:translateY(0) scale(1); } 28% { transform:translateY(-7px) scale(1.18); } 55% { transform:translateY(2px) scale(0.93); } 78% { transform:translateY(-2px) scale(1.04); } 100% { transform:translateY(0) scale(1); } }
+@keyframes xp-fill-flash { 0% { background:var(--gold); filter:brightness(1); } 18% { background:#fff; filter:brightness(2.5); } 50% { background:#FDE68A; filter:brightness(1.4); } 100% { background:#EF4444; filter:brightness(1); } }
+.xp-up-label.xp-full  { animation: xp-up-pop .85s ease-out forwards; }
+.lv-badge.xp-full      { animation: xp-badge-bounce .55s cubic-bezier(.36,.07,.19,.97); }
+.xp-fill.xp-full       { animation: xp-fill-flash .65s ease-out forwards; }
 .xp-num { font-size: 10px; color: rgba(255,255,255,.7); text-align: right; line-height: 1; }
 .hdr.completed .xp-num { color: rgba(253,230,138,.7); }
 .streak { font-size: 12px; white-space: nowrap; }
@@ -125,6 +133,18 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 .guide-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 8px; background: #F1F5F9; border-radius: 8px; }
 .guide-row span:last-child { font-weight: 700; color: #059669; white-space: nowrap; margin-left: 8px; }
 .guide-ver { text-align: center; font-size: 12px; color: #94A3B8; padding: 8px 0 4px; }
+.rule-notice-ov { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 400; padding: 20px; }
+.rule-notice-card { background: #fff; border-radius: 20px; padding: 24px 20px 20px; width: 100%; max-width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+.rule-notice-title { font-size: 16px; font-weight: 900; text-align: center; margin-bottom: 4px; }
+.rule-notice-sub { font-size: 11px; color: #94A3B8; text-align: center; margin-bottom: 16px; }
+.rule-notice-table { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.rule-notice-row { background: #F8FAFC; border-radius: 10px; padding: 9px 12px; }
+.rule-notice-label { font-size: 11px; color: #64748B; font-weight: 600; margin-bottom: 3px; }
+.rule-notice-change { font-size: 13px; font-weight: 700; color: #1E293B; }
+.rule-notice-change .old { color: #94A3B8; text-decoration: line-through; font-weight: 400; }
+.rule-notice-change .arr { color: #CBD5E1; margin: 0 4px; }
+.rule-notice-change .new { color: #059669; }
+.rule-notice-btn { width: 100%; padding: 12px; background: var(--blue); border: none; border-radius: 99px; color: #fff; font-size: 16px; font-weight: 900; cursor: pointer; font-family: inherit; letter-spacing: 1px; }
 .reset-ov { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 500; padding: 20px; }
 .reset-card { background: #fff; border-radius: 20px; padding: 26px 22px 20px; width: 100%; max-width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,.3); }
 .reset-title { font-size: 18px; font-weight: 900; text-align: center; margin-bottom: 10px; }
@@ -168,7 +188,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 .t-ノーマル{background:#A8A878;color:#fff} .t-ほのお{background:#F08030;color:#fff} .t-みず{background:#6890F0;color:#fff} .t-くさ{background:#78C850;color:#fff} .t-でんき{background:#F8D030;color:#333} .t-こおり{background:#98D8D8;color:#333} .t-かくとう{background:#C03028;color:#fff} .t-どく{background:#A040A0;color:#fff} .t-じめん{background:#E0C068;color:#333} .t-ひこう{background:#A890F0;color:#fff} .t-エスパー{background:#F85888;color:#fff} .t-むし{background:#A8B820;color:#fff} .t-いわ{background:#B8A038;color:#fff} .t-ゴースト{background:#705898;color:#fff} .t-ドラゴン{background:#7038F8;color:#fff} .t-あく{background:#705848;color:#fff} .t-はがね{background:#B8B8D0;color:#333} .t-フェアリー{background:#EE99AC;color:#fff}
 
 /* ─── Login bonus overlay ─── */
-.lb-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; z-index: 200; }
+.lb-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; z-index: 270; }
 .lb-card { background: #fff; border-radius: 22px; padding: 30px 28px; text-align: center; max-width: 300px; width: 90%; }
 .lb-icon { font-size: 44px; }
 .lb-ttl { font-size: 20px; font-weight: 900; margin: 8px 0 4px; }
@@ -332,8 +352,35 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
     </div>
   </div>
 
+  <!-- ルール変更お知らせ（2026-05-13 のみ表示） -->
+  <div class="rule-notice-ov" v-if="showRuleNotice">
+    <div class="rule-notice-card">
+      <div class="rule-notice-title">📢 おしらせ</div>
+      <div class="rule-notice-sub">2026ねん 5がつ 13にち こうしん</div>
+      <div class="rule-notice-table">
+        <div class="rule-notice-row">
+          <div class="rule-notice-label">パーフェクトボーナス（10もん ぜんせいかい）</div>
+          <div class="rule-notice-change"><span class="old">+15 Exp</span><span class="arr">→</span><span class="new">+8 Exp</span></div>
+        </div>
+        <div class="rule-notice-row">
+          <div class="rule-notice-label">コンボボーナス（れんぞくせいかい）</div>
+          <div class="rule-notice-change"><span class="old">3れんぞくから</span><span class="arr">→</span><span class="new">5れんぞくから</span></div>
+        </div>
+        <div class="rule-notice-row">
+          <div class="rule-notice-label">スピードボーナス</div>
+          <div class="rule-notice-change"><span class="old">45びょう / 90びょう の 2だんかい</span><span class="arr">→</span><span class="new">60びょういないの 1だんかい</span></div>
+        </div>
+        <div class="rule-notice-row">
+          <div class="rule-notice-label">けいけんちをちょうせい</div>
+          <div class="rule-notice-change"><span class="new">ぜんもんせいかい＋スピードで 3セット やると、レベルが 2つ あがるくらいの てごたえに なりました</span></div>
+        </div>
+      </div>
+      <button class="rule-notice-btn" @click="dismissRuleNotice">OK</button>
+    </div>
+  </div>
+
   <!-- Login bonus overlay (dbLoaded guard prevents flash before DB is ready) -->
-  <div class="lb-overlay" v-if="dbLoaded && showLoginBonus && !starterPhase" @click="dismissLoginBonus">
+  <div class="lb-overlay" v-if="dbLoaded && showLoginBonus && !starterPhase && !showTitleScreen && !showRuleNotice" @click="dismissLoginBonus">
     <div class="lb-card">
       <div class="lb-icon">🌟</div>
       <div class="lb-ttl">まいにちログインボーナス！</div>
@@ -356,9 +403,12 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
   <div class="hdr" :class="{completed: profile.completed}" v-if="screen !== 'pokedex' && screen !== 'guide'">
     <div class="hdr-title">{{ profile.completed ? '👑' : '⚡' }} ポケ●ン九九 {{ profile.completed ? '👑' : '⚡' }}</div>
     <div class="hdr-row">
-      <div class="lv-badge">Lv.{{ profile.level }}</div>
+      <div class="xp-badge-wrap">
+        <span class="xp-up-label" :class="{'xp-full': xpBarFull}">up!</span>
+        <div class="lv-badge" :class="{'xp-full': xpBarFull}">Lv.{{ profile.level }}</div>
+      </div>
       <div class="xp-col">
-        <div class="xp-wrap"><div class="xp-fill" :style="{width: xpPercent+'%'}"></div></div>
+        <div class="xp-wrap"><div class="xp-fill" :class="{'xp-full': xpBarFull}" :style="{width: xpPercent+'%'}"></div></div>
         <div class="xp-num">Exp. {{ profile.xp + previewXp }}</div>
       </div>
       <div class="streak">🔥{{ profile.loginStreak }}にち</div>
@@ -508,10 +558,9 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
         <div class="guide-heading">⭐ けいけんち（Exp）とレベル</div>
         <div class="guide-table">
           <div class="guide-row"><span>せいかい</span><span>+5 Exp</span></div>
-          <div class="guide-row"><span>パーフェクト（10もん ぜんせいかい）</span><span>+15 Exp</span></div>
-          <div class="guide-row"><span>コンボボーナス（れんぞくせいかい）</span><span>さいだい+8 Exp</span></div>
-          <div class="guide-row"><span>スピードボーナス（45びょういない）</span><span>+10 Exp</span></div>
-          <div class="guide-row"><span>スピードボーナス（90びょういない）</span><span>+5 Exp</span></div>
+          <div class="guide-row"><span>パーフェクト（10もん ぜんせいかい）</span><span>+8 Exp</span></div>
+          <div class="guide-row"><span>コンボボーナス（5れんぞく〜、1もんにつき）</span><span>さいだい+6 Exp</span></div>
+          <div class="guide-row"><span>スピードボーナス（60びょういない）</span><span>+10 Exp</span></div>
           <div class="guide-row"><span>まいにちログインボーナス</span><span>+10 Exp</span></div>
           <div class="guide-row"><span>れんぞくログインボーナス</span><span>さいだい+15 Exp</span></div>
         </div>
@@ -1733,16 +1782,13 @@ let loadedVersion = '';
 // ── XP constants ──
 const XP_CORRECT     = 5;
 const XP_THRESHOLD   = 100;
-const XP_PERFECT     = 15;
+const XP_PERFECT     = 8;
 const XP_LOGIN       = 10;
 const XP_STREAK_DAY  = 3;
 const XP_STREAK_MAX  = 15;
 const XP_COMBO_STEP  = 1;
-const XP_COMBO_CAP   = 8;
-const XP_TIME_FAST   = 10;   // 45秒以内
-const XP_TIME_MED    = 5;    // 90秒以内
-const TIME_FAST_MS   = 45000;
-const TIME_MED_MS    = 90000;
+const XP_TIME_FAST   = 10;   // 60秒以内
+const TIME_FAST_MS   = 60000;
 const TIME_MIN_CORRECT = 6;  // タイムボーナス対象の最低正解数
 
 // ── IndexedDB ──
@@ -1822,7 +1868,7 @@ function generateSession(stats) {
 }
 
 // ── Vue App ──
-const { createApp, ref, computed, reactive, onMounted, nextTick } = Vue;
+const { createApp, ref, computed, reactive, onMounted, nextTick, watch } = Vue;
 
 createApp({
   setup() {
@@ -1891,6 +1937,9 @@ createApp({
     // Completion celebration state
     const hallFlash = ref(false);
     const hallShow  = ref(false);
+
+    // XPバー満タン演出
+    const xpBarFull = ref(false);
     const starPositions  = Array.from({length:18}, (_,i) => ({
       id: i, x: Math.random()*100, y: Math.random()*100, d: (Math.random()*2).toFixed(1)
     }));
@@ -2084,8 +2133,8 @@ createApp({
         playXpSound();
         spawnXpFloat('+' + XP_CORRECT, '#F59E0B', '30px');
         previewXp.value += XP_CORRECT;
-        if (comboCount.value >= 3 && sessionComboBonus.value < XP_COMBO_CAP) {
-          const cb = Math.min(XP_COMBO_STEP, XP_COMBO_CAP - sessionComboBonus.value);
+        if (comboCount.value >= 5) {
+          const cb = XP_COMBO_STEP;
           sessionComboBonus.value += cb;
           previewXp.value += cb;
           setTimeout(() => spawnXpFloat('+' + cb + ' コンボ！', '#EF4444', '20px'), 200);
@@ -2132,9 +2181,8 @@ createApp({
         if (r === 'correct') {
           xpCorrect += XP_CORRECT;
           combo++;
-          if (combo >= 3 && comboBonus < XP_COMBO_CAP) {
-            const b = Math.min(XP_COMBO_STEP, XP_COMBO_CAP - comboBonus);
-            comboBonus += b;
+          if (combo >= 5) {
+            comboBonus += XP_COMBO_STEP;
           }
         } else { combo = 0; }
       }
@@ -2142,8 +2190,7 @@ createApp({
       const nCorrect  = correctCount.value;
       let xpTime = 0;
       if (nCorrect >= TIME_MIN_CORRECT) {
-        if (thinkingTimeMs <= TIME_FAST_MS)     xpTime = XP_TIME_FAST;
-        else if (thinkingTimeMs <= TIME_MED_MS) xpTime = XP_TIME_MED;
+        if (thinkingTimeMs <= TIME_FAST_MS) xpTime = XP_TIME_FAST;
       }
       const xpTotal = xpCorrect + xpPerfect + comboBonus + xpTime;
 
@@ -2237,6 +2284,37 @@ createApp({
       screen.value = 'guide';
       history.pushState({guide: true}, '');
     }
+
+    // XPバーが100%に達したとき満タン演出を発火（赤バーはセッション終了まで維持）
+    watch(xpPercent, (newVal, oldVal) => {
+      if (newVal >= 100 && oldVal < 100 && !xpBarFull.value) {
+        xpBarFull.value = true;
+      }
+    });
+    // スタートボタンが出たタイミングで赤バーをリセット
+    watch(sessionReady, (val) => {
+      if (val) xpBarFull.value = false;
+    });
+
+    // ルール変更お知らせ（2026-05-13 のみ）
+    const showRuleNotice = ref(false);
+    function dismissRuleNotice() {
+      showRuleNotice.value = false;
+      if (showLoginBonus.value) {
+        spawnXpFloat(`+${loginBonusXP.value}`, '#F59E0B', '32px', null);
+      }
+    }
+
+    // タイトルが消えた瞬間：お知らせ表示 or XPフロート発火
+    watch(showTitleScreen, (val) => {
+      if (!val) {
+        if (new Date().toISOString().slice(0, 10) === '2026-05-13') { // 2026-05-14以降はデッドコード
+          showRuleNotice.value = true;
+        } else if (showLoginBonus.value) {
+          spawnXpFloat(`+${loginBonusXP.value}`, '#F59E0B', '32px', null);
+        }
+      }
+    });
 
     function dismissLoginBonus() {
       showLoginBonus.value = false;
@@ -2417,7 +2495,7 @@ createApp({
           const {gained} = doAddXP(loginBonusXP.value);
           loginPokemons.value  = gained;
           showLoginBonus.value = true;
-          spawnXpFloat(`+${loginBonusXP.value}`, '#F59E0B', '32px', null);
+          // XPフロートはタイトルが消えてから発火（watch で制御）
         }
         await saveProfile();
       } else if (profile.todayDate !== today) {
@@ -2465,7 +2543,8 @@ createApp({
       confirmXpCalc, revealLevelup, nextLevelupPokemon,
       revealStarter, dismissStarter, resetData, cancelReset, confirmReset,
       showResetModal, resetCode, resetInput, zukanUrl, fmtDatetime, pokeType, reloadPage,
-      hallFlash, hallShow, completionStats, dismissHallOfFame, secretWord
+      hallFlash, hallShow, completionStats, dismissHallOfFame, secretWord,
+      xpBarFull, showRuleNotice, dismissRuleNotice
     };
   }
 }).mount('#app');
