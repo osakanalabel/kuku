@@ -36,8 +36,9 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 .hdr-title { text-align: center; font-size: 20px; font-weight: 900; letter-spacing: 3px; color: #FFE500; text-shadow: 0 2px 0 #B86000, 0 4px 8px rgba(0,0,0,.35); }
 .hdr.completed .hdr-title { color: #FDE68A; text-shadow: 0 0 16px rgba(253,230,138,.8), 0 2px 0 #1E1B4B; }
 .hdr-row { display: flex; align-items: center; gap: 10px; }
-.lv-badge { font-size: 13px; font-weight: 900; background: var(--gold); color: #333; padding: 2px 10px; border-radius: 99px; white-space: nowrap; }
+.lv-badge { font-size: 13px; font-weight: 900; background: var(--gold); color: #333; padding: 2px 10px; border-radius: 99px; white-space: nowrap; transition: background .4s ease, color .4s ease; }
 .hdr.completed .lv-badge { background: #FDE68A; color: #3730A3; }
+.lv-badge.xp-full { background: #EF4444; color: #fff; }
 .xp-col { flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .xp-wrap { background: rgba(255,255,255,.25); border-radius: 4px; height: 10px; overflow: hidden; }
 .xp-fill { height: 100%; background: var(--gold); transition: width .4s ease, background .4s ease; }
@@ -2199,6 +2200,7 @@ createApp({
 
       const {levels, gained} = doAddXP(xpTotal);
       previewXp.value       = 0;
+      xpBarFull.value       = false;
       sessionComboBonus.value = 0;
       leveledUp.value   = levels > 0;
       newPokemons.value = gained;
@@ -2290,10 +2292,6 @@ createApp({
       if (newVal >= 100 && oldVal < 100 && !xpBarFull.value) {
         xpBarFull.value = true;
       }
-    });
-    // スタートボタンが出たタイミングで赤バーをリセット
-    watch(sessionReady, (val) => {
-      if (val) xpBarFull.value = false;
     });
 
     // ルール変更お知らせ（2026-05-13 のみ）
